@@ -1,0 +1,691 @@
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="employee_tbl")
+public class Employee {
+	
+	@Id //primary key
+	@GeneratedValue(strategy=GenerationType.AUTO)//default strategy is auto,this is how we do it explicitly
+	@Column(name="emp_id")
+	private int employeeId;
+	
+	@Column(name="emp_name",length=15)
+	private String employeeName;
+	
+	@Column(name="emp_salary")
+	private int employeeSalary;
+	
+	public Employee() {
+		super();
+	}
+	
+	
+	
+	public Employee(int employeeId, String employeeName, int employeeSalary) {
+		super();
+		this.employeeId = employeeId;
+		this.employeeName = employeeName;
+		this.employeeSalary = employeeSalary;
+	}
+
+
+
+	public int getEmployeeId() {
+		return employeeId;
+	}
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+	public int getEmployeeSalary() {
+		return employeeSalary;
+	}
+	public void setEmployeeSalary(int employeeSalary) {
+		this.employeeSalary = employeeSalary;
+	}
+	
+	
+}
+
+
+*******************************************************************************************************************************
+
+			*****************	PERSIST 	******************************
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	Employee emp=new Employee();
+	emp.setEmployeeName("John");
+	emp.setEmployeeSalary(78000);
+	
+	em.persist(emp);
+	
+	em.getTransaction().commit();//transaction is commited
+	System.out.println("Employee added to database");
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+************************************************************************************************************************
+
+
+				*********** 	FETCH	******************************
+
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	
+	Employee emp=em.find(Employee.class, 3);
+	
+	if(emp== null)
+	{
+		System.out.println("Employee Not found!!");
+	}
+	else
+	{
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary());;
+	}
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+*****************************************************************************************************************************
+
+				********* FETCH WHILE CHANGING VALUE(MAPS BECAUSE ITS IN MANAGED STATE)*****
+
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	
+	Employee emp=em.find(Employee.class, 3);
+	
+	if(emp== null)
+	{
+		System.out.println("Employee Not found!!");
+	}
+	else
+	{
+		emp.setEmployeeSalary(50000);
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary());;
+	}
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+OUTPUT:
+SALARY GETS UPSATED BEFORE BEING DISPLAYED;
+SIMULTANIOUS MAPPING
+3-John-50000
+Hibernate: update employee_tbl set emp_name=?, emp_salary=? where emp_id=?
+
+********************************************************************************************************************************
+*****************************DETACH*************************************************
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	
+	Employee emp=em.find(Employee.class, 3);
+	
+	if(emp== null)
+	{
+		System.out.println("Employee Not found!!");
+	}
+	else
+	{
+		em.detach(emp);
+		emp.setEmployeeSalary(52000);
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary());;
+	}
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+
+OUTPUT:
+ITS CHANGED HERE BECAUSE OF THE GETTER
+BUT IT REMAINS UNCHANGED IN DB
+******************************************************************************************************
+
+*******************************************CLEAR***************************************************
+
+
+
+DETACHES ALL
+
+
+
+em.clear();
+
+
+
+
+
+
+
+*******************************************************************************************
+
+					**delete/***
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	
+	Employee emp=em.find(Employee.class, 1);
+	
+	if(emp== null)
+	{
+		System.out.println("Employee Not found!!");
+	}
+	else
+	{
+		em.remove(emp);
+		
+		System.out.println("employee removed");
+	}
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+note: it first needs to be found n then removed
+
+ ********************************************************************************************************************************************
+			
+						*********UPDATE****************
+
+
+package com.cg.jpastart.entities;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	
+	Employee emp=em.find(Employee.class, 2);
+	
+	if(emp== null)
+	{
+		System.out.println("Employee Not found!!");
+	}
+	else
+	{
+		emp.setEmployeeName("Shyam");
+		//updated
+		//we use merge explicitly to update although it does it already
+		em.merge(emp);
+		
+		System.out.println("employee changed");
+	}
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+
+***************************************************************************************************************************
+
+						******FETCH ALL RECORDS(USE JPI QUERY LANG)
+
+
+
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	Query qry=em.createQuery("from Employee");
+	//or useQuery qry= em.createQuery("select e from Employee e");
+	
+	List list=qry.getResultList();
+	
+	for(Object obj : list)
+	{
+		Employee emp=(Employee)obj;
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	}
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+
+OUTPUT:
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_
+2-Shyam-89000
+
+3-John-50000
+
+
+******************************************************************************************************************************
+
+				***********************TYPED QUERY*****************************
+
+
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	TypedQuery<Employee> qry=em.createQuery("from Employee",Employee.class);
+	
+	List<Employee> list=qry.getResultList();
+	
+	for(Employee emp:list)//HERE IT WORKS IF WE USEFOR(Object obj:list) it explicitly type casted to the obj of type Object
+	{
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	}
+	
+	
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+OUTPUT:
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_
+2-Shyam-89000
+
+3-John-50000
+
+**********************************************************************************************************************************
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	TypedQuery<Employee> qry=em.createQuery("from Employee where employeeId=3",Employee.class);
+	
+	List<Employee> list=qry.getResultList();
+	
+	for(Employee emp:list)
+	{
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	}
+	
+	
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+output:
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_ where employee0_.emp_id=3
+3-John-50000
+
+**********************************************************************************************************************************
+
+
+				***************geting one row as result**********************
+
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	TypedQuery<Employee> qry=em.createQuery("from Employee where employeeId=3",Employee.class);
+	
+	
+	Employee emp=qry.getSingleResult();
+	
+	
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	
+	
+	
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+output:
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select * from ( select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_ where employee0_.emp_id=3 ) where rownum <= ?
+3-John-50000
+
+
+******************************************************************************************************************************************************************************************
+
+			********************   giving search value explicitly    **************************
+
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	TypedQuery<Employee> qry=em.createQuery("from Employee where employeeId=?",Employee.class);
+	qry.setParameter(1,3);//you are passing wic value to be sent..i.e u can ask user
+	
+	Employee emp=qry.getSingleResult();
+	
+	
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	
+	
+	
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+output:
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select * from ( select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_ where employee0_.emp_id=? ) where rownum <= ?
+3-John-50000
+
+NOTE:when no result is there it thorows a noresultexception
+****************************************************************************************************************************************
+
+				*********************naming the parameter**********************
+
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	TypedQuery<Employee> qry=em.createQuery("from Employee where employeeId=:id",Employee.class);
+	qry.setParameter("id",3);//you are passing wic value to be sent..i.e u can ask user
+	
+	Employee emp=qry.getSingleResult();
+	
+	
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	
+	
+	
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+output:
+
+
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select * from ( select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_ where employee0_.emp_id=? ) where rownum <= ?
+3-John-50000
+
+
+NOTE: USING NAMED PARAMETER IS RECOMMENDED
+
+************************************************************************************************************************************
+			**************************typed query*********************************
+
+package com.cg.jpastart.entities;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
+
+public class EmployeeTest {
+
+	public static void main(String[] args) {
+	EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+	EntityManager em=emf.createEntityManager();
+	em.getTransaction().begin();//transaction boundary begins
+	
+	
+		TypedQuery<Employee> qry=em.createNamedQuery("viewAllEmployee", Employee.class);
+	
+	List<Employee> list=qry.getResultList();
+	for(Employee emp: list)
+	{
+		System.out.println(emp.getEmployeeId()+"-"+emp.getEmployeeName()+"-"+emp.getEmployeeSalary()+"\n");
+	}
+	
+	em.getTransaction().commit();//transaction is commited
+
+	em.close();
+	emf.close();
+	
+
+	}
+
+}
+
+
+output:
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+Hibernate: select employee0_.emp_id as emp1_1_, employee0_.emp_name as emp2_1_, employee0_.emp_salary as emp3_1_ from employee_tbl employee0_
+2-Shyam-89000
+
+3-John-50000
