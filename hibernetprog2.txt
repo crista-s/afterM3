@@ -1,0 +1,563 @@
+package com.test;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp_tbl")
+public class Employee {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="emp_id")
+	private int employeeId;
+	@Column(name="emp_name",length=25)
+	private String employeeName;
+	
+	@OneToOne
+	@JoinColumn(name="dept_id")
+	private Department department;
+
+	public int getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+
+	public String getEmployeeName() {
+		return employeeName;
+	}
+
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
+	
+	
+	
+
+}
+
+
+*****
+package com.test;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="dept_tbl")
+public class Department {
+
+	@Id
+	@GeneratedValue
+	@Column(name="dept_id")
+	private int departmentId;
+	@Column(name="dept_name",length=10)
+	private String departmentName;
+	
+	public int getDepartmentId() {
+		return departmentId;
+	}
+	public void setDepartmentId(int departmentId) {
+		this.departmentId = departmentId;
+	}
+	public String getDepartmentName() {
+		return departmentName;
+	}
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+	
+}
+*********
+package com.test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class TestMapping {
+
+	public static void main(String[] args) {
+		
+		EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+		EntityManager em=emf.createEntityManager();
+		em.getTransaction().begin();
+		Employee emp=new Employee();
+		emp.setEmployeeName("John");
+		Department dept=new Department();
+		dept.setDepartmentName("Sales");
+		emp.setDepartment(dept);
+		em.persist(emp);
+		em.persist(dept);
+		
+		em.getTransaction().commit();//transaction is commited
+		System.out.println("Employee is added");
+
+		em.close();
+		emf.close();
+
+	}
+
+}
+******
+***************************************************************************************************************************************
+				******************persisting in both**************************
+
+package com.test;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp_tbl")
+public class Employee {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="emp_id")
+	private int employeeId;
+	@Column(name="emp_name",length=25)
+	private String employeeName;
+	
+	@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name="dept_id")
+	private Department department;
+
+	public int getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+
+	public String getEmployeeName() {
+		return employeeName;
+	}
+
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
+	
+	
+	
+
+}
+
+******
+package com.test;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="dept_tbl")
+public class Department {
+
+	@Id
+	@GeneratedValue
+	@Column(name="dept_id")
+	private int departmentId;
+	@Column(name="dept_name",length=10)
+	private String departmentName;
+	
+	public int getDepartmentId() {
+		return departmentId;
+	}
+	public void setDepartmentId(int departmentId) {
+		this.departmentId = departmentId;
+	}
+	public String getDepartmentName() {
+		return departmentName;
+	}
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+	
+}
+********
+
+package com.test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class TestMapping {
+
+	public static void main(String[] args) {
+		
+		EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+		EntityManager em=emf.createEntityManager();
+		
+		
+		em.getTransaction().begin();
+		
+		Employee emp=new Employee();
+		emp.setEmployeeName("Seema");
+		Department dept=new Department();
+		dept.setDepartmentName("Finance");
+		emp.setDepartment(dept);
+		
+		
+		em.persist(emp);//set in both tables just with this because of the cascade set in employee..
+	
+		
+		em.getTransaction().commit();//transaction is commited
+		System.out.println("Employee is added");
+
+		em.close();
+		emf.close();
+
+	}
+
+}
+
+************************************************************************************************************************
+
+						****find*****
+
+package com.test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class TestMapping {
+
+	public static void main(String[] args) {
+		
+		EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+		EntityManager em=emf.createEntityManager();
+		
+		
+		em.getTransaction().begin();
+		
+		Employee emp=em.find(Employee.class, 1);
+		
+		System.out.println(emp.getEmployeeName());;
+		Department d=emp.getDepartment();
+		System.out.println(d.getDepartmentName());
+		
+	
+		
+		em.getTransaction().commit();//transaction is commited
+		
+
+		em.close();
+		emf.close();
+
+	}
+
+}
+
+
+package com.test;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="dept_tbl")
+public class Department {
+
+	@Id
+	@GeneratedValue
+	@Column(name="dept_id")
+	private int departmentId;
+	@Column(name="dept_name",length=10)
+	private String departmentName;
+	
+	public int getDepartmentId() {
+		return departmentId;
+	}
+	public void setDepartmentId(int departmentId) {
+		this.departmentId = departmentId;
+	}
+	public String getDepartmentName() {
+		return departmentName;
+	}
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+	
+}
+
+
+package com.test;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp_tbl")
+public class Employee {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="emp_id")
+	private int employeeId;
+	@Column(name="emp_name",length=25)
+	private String employeeName;
+	
+	@OneToOne(cascade=CascadeType.ALL)
+	@JoinColumn(name="dept_id")
+	private Department department;
+
+	public int getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+
+	public String getEmployeeName() {
+		return employeeName;
+	}
+
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
+	
+	
+	
+
+}
+
+**********************************************************************************************************************************
+
+						*****lazy fetch*****
+
+
+package com.test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class TestMapping {
+
+	public static void main(String[] args) {
+		
+		EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+		EntityManager em=emf.createEntityManager();
+		
+		
+		em.getTransaction().begin();
+		
+		Employee emp=em.find(Employee.class, 3);
+		
+		System.out.println(emp.getEmployeeName());//we need only emp name hence only emp obj needed so set etch to lazy type
+		
+		em.getTransaction().commit();//transaction is commited
+		
+
+		em.close();
+		emf.close();
+
+	}
+
+}
+
+package com.test;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="emp_tbl")
+public class Employee {
+	
+	@Id
+	@GeneratedValue
+	@Column(name="emp_id")
+	private int employeeId;
+	@Column(name="emp_name",length=25)
+	private String employeeName;
+	
+	@OneToOne(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+	@JoinColumn(name="dept_id")
+	private Department department;
+
+	public int getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(int employeeId) {
+		this.employeeId = employeeId;
+	}
+
+	public String getEmployeeName() {
+		return employeeName;
+	}
+
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+
+	public Department getDepartment() {
+		return department;
+	}
+
+	public void setDepartment(Department department) {
+		this.department = department;
+	}
+	
+	
+	
+
+}
+
+**dept is same***
+
+********************************************************************************************************************
+
+			fech emp from dept
+
+
+package com.test;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+public class TestMapping {
+
+	public static void main(String[] args) {
+		
+		EntityManagerFactory emf=Persistence.createEntityManagerFactory("JPA-PU");
+		EntityManager em=emf.createEntityManager();
+		
+		
+		em.getTransaction().begin();
+		
+		Department dept=em.find(Department.class, 6);
+		System.out.println(dept.getEmployee().getEmployeeName());
+		
+		//System.out.println(emp.getEmployeeName());//we need only emp name hence only emp obj needed so set etch to lazy type
+		
+		em.getTransaction().commit();//transaction is commited
+		
+
+		em.close();
+		emf.close();
+
+	}
+
+}
+
+
+package com.test;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="dept_tbl")
+public class Department {
+
+	@Id
+	@GeneratedValue
+	@Column(name="dept_id")
+	private int departmentId;
+	@Column(name="dept_name",length=10)
+	private String departmentName;
+	
+	@OneToOne(mappedBy="department")
+	//the annotation tells it is having a relationship with deptartment as foreing key in employee
+	private Employee employee;
+	
+	public Employee getEmployee() {
+		return employee;
+	}
+	public void setEmployee(Employee employee) {
+		this.employee = employee;
+	}
+	public int getDepartmentId() {
+		return departmentId;
+	}
+	public void setDepartmentId(int departmentId) {
+		this.departmentId = departmentId;
+	}
+	public String getDepartmentName() {
+		return departmentName;
+	}
+	public void setDepartmentName(String departmentName) {
+		this.departmentName = departmentName;
+	}
+	
+}
+
+
+emp no change
+
+
+**************************************************************************************************************************
